@@ -2,8 +2,6 @@ import boto3
 import json
 from PyPDF2 import PdfReader
 import os
-from langchain.text_splitter import RecursiveCharacterTextSplitter
-from langchain_community.document_loaders import PyPDFLoader
 
 log_filename = 'chunks_log.txt'
 full_text_file = 'full_text.txt'
@@ -36,6 +34,13 @@ def convert_to_json(chunk):
     3. Do not add links
     4. If any value is empty, do not include it in the final JSON
     5. Keep keys true to document terminology
+    6. To calculate the total professional experience and average experience per company, please follow these steps:
+        -Identify all unique employment periods.
+        -For overlapping periods, count the time only once to avoid double-counting.
+        -Calculate the total duration of non-overlapping employment.
+        -Count the number of unique companies worked for.
+        -Calculate the average experience per company by dividing the total non-overlapping duration by the number of companies.
+        -Give the exact number of years and months in the output\n
 
     Carefully examine the resume and extract the following information. If any of the information is not mentioned, skip it\n
     1. Full Name
@@ -133,18 +138,19 @@ def convert_to_json(chunk):
     }},
     "overallExperience": {{ 
         "type": "string", 
-        "description": "Total years of professional experience (eg - 5 Years)" 
+        "description": "Total years of professional experience (example - 5 Years)" 
     }},
     "averageExperiencePerCompany": {{ 
         "type": "string", 
-        "description": "Average years of experience per company (eg - 2.5 Years)" 
+        "description": "Average years of experience per company (example - 2 Years)" 
     }}
     }}
 
-    Here is the information\n\n
+    \nHere is the information\n
     <context> 
     {chunk}
     </context>
+
     '''
 
     messages = [
@@ -173,7 +179,7 @@ def convert_to_json(chunk):
     return response_body['content'][0]['text']
 
 
-pdf_path = "/Users/adityashedge/Downloads/Moscow-Creative-Resume-Template.pdf"
+pdf_path = "/Users/adityashedge/Downloads/London-Resume-Template-Professional.pdf"
 
 full_text_chunk = read_pdf(pdf_path)
 
